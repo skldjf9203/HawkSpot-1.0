@@ -5,35 +5,79 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HawkSpot | Field Execution & Reporting</title>
     
-    <!-- Scripts: React, Tailwind, PptxGenJS, Lucide -->
+    <!-- Dependencies -->
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/gh/gitbrent/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
+    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; }
+        
+        :root {
+            --brand-navy: #0F172A;
+            --brand-blue: #3B82F6;
+        }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            margin: 0; 
+            padding: 0; 
+            background-color: #f8fafc;
+        }
+
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+
+        /* Prevent layout shift before React loads */
+        #root { min-height: 100vh; }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-900">
-    <div id="root"></div>
+<body>
+    <div id="root">
+        <!-- Loading state visible before React mounts -->
+        <div class="flex items-center justify-center h-screen bg-slate-50">
+            <div class="text-center">
+                <div class="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                <p class="text-slate-500 font-medium">Initializing HawkSpot...</p>
+            </div>
+        </div>
+    </div>
 
     <script type="text/babel">
-        const { useState, useEffect, useMemo } = React;
-        const { 
-            LayoutDashboard, Images, MapPin, Settings, FileDown, 
-            Search, CheckCircle2, Circle, Loader2, ChevronRight, AlertCircle 
-        } = lucide;
+        const { useState, useEffect, useMemo, createElement } = React;
 
-        // --- SUPABASE CONFIG (Placeholder) ---
-        const SUPABASE_URL = ""; 
-        const SUPABASE_KEY = "";
+        // Helper to use Lucide icons in React without extra overhead
+        const Icon = ({ name, size = 20, className = "" }) => {
+            const [svg, setSvg] = useState("");
+
+            useEffect(() => {
+                if (window.lucide) {
+                    const iconSvg = window.lucide.icons[name];
+                    if (iconSvg) {
+                        // Lucide icons are arrays of [tag, attrs, children]
+                        // We convert them to a usable format or use lucide.createIcons logic
+                        // For simplicity in this single-file setup, we'll use a span and createIcons
+                    }
+                }
+            }, [name]);
+
+            // Simplified: Use the lucide script to inject icons into i tags
+            return <i data-lucide={name} style={{ width: size, height: size }} className={`inline-block ${className}`}></i>;
+        };
 
         const App = () => {
             const [submissions, setSubmissions] = useState([]);
@@ -42,11 +86,19 @@
             const [isExporting, setIsExporting] = useState(false);
             const [isLoading, setIsLoading] = useState(true);
 
-            // Fetch Data
+            // Trigger lucide icon replacement whenever content changes
+            useEffect(() => {
+                if (window.lucide) {
+                    window.lucide.createIcons();
+                }
+            });
+
+            // Mock Data
             useEffect(() => {
                 const loadData = async () => {
-                    // Logic for Supabase integration would go here
-                    // For now, using professional mock data for Bunnys Snacks
+                    // Simulate API delay
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    
                     const mockData = [
                         { 
                             id: 101, 
@@ -71,9 +123,7 @@
                                 "https://images.unsplash.com/photo-1583258292688-d0213dc5a3a8?w=800",
                                 "https://images.unsplash.com/photo-1516594798947-e65505dbb29d?w=800",
                                 "https://images.unsplash.com/photo-1506484334406-f1196d057393?w=800",
-                                "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800",
-                                "https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=800",
-                                "https://images.unsplash.com/photo-1550989460-0adf9ea622e2?w=800"
+                                "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800"
                             ] 
                         },
                         { 
@@ -117,7 +167,7 @@
                     const titleSlide = pptx.addSlide();
                     titleSlide.background = { fill: "0F172A" };
                     titleSlide.addText("HAWKSPOT", {
-                        x: 0, y: '35%', w: '100%', align: 'center', fontSize: 54, color: 'FFFFFF', bold: true
+                        x: 0, y: '35%', w: '100%', align: 'center', fontSize: 54, color: 'FFFFFF', bold: true, fontFace: 'Arial'
                     });
                     titleSlide.addText("FIELD EXECUTION EVIDENCE REPORT", {
                         x: 0, y: '52%', w: '100%', align: 'center', fontSize: 18, color: '3B82F6', bold: true
@@ -143,14 +193,18 @@
                             const layout = getCoords(chunk.length);
                             chunk.forEach((img, i) => {
                                 const pos = layout[i];
-                                slide.addImage({ path: img, x: pos.x, y: pos.y, w: pos.w, h: pos.h, sizing: { type: 'contain', w: pos.w, h: pos.h }, border: { color: 'EEEEEE', pt: 1 } });
+                                slide.addImage({ 
+                                    path: img, x: pos.x, y: pos.y, w: pos.w, h: pos.h, 
+                                    sizing: { type: 'contain', w: pos.w, h: pos.h }, 
+                                    border: { color: 'EEEEEE', pt: 1 } 
+                                });
                             });
                         });
                     });
 
-                    await pptx.writeFile({ fileName: `Bunnys_Execution_Report_${Date.now()}.pptx` });
+                    await pptx.writeFile({ fileName: `HawkSpot_Report_${Date.now()}.pptx` });
                 } catch (e) {
-                    console.error(e);
+                    console.error("Export error:", e);
                 } finally {
                     setIsExporting(false);
                 }
@@ -171,78 +225,97 @@
                     {/* Sidebar */}
                     <aside className="w-64 bg-slate-900 text-white flex flex-col shrink-0">
                         <div className="p-6 flex items-center gap-3 border-b border-slate-800">
-                            <div className="bg-blue-600 p-1.5 rounded-lg"><LayoutDashboard size={20} /></div>
-                            <h1 className="text-xl font-bold">HawkSpot</h1>
-                        </div>
-                        <nav className="p-4 space-y-2">
-                            <div className="flex items-center gap-3 px-4 py-3 bg-blue-600/10 text-blue-400 rounded-xl font-medium">
-                                <Images size={18} /><span>Submissions</span>
+                            <div className="bg-blue-600 p-2 rounded-lg">
+                                <Icon name="layout-dashboard" />
                             </div>
-                            <div className="flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-slate-800 rounded-xl font-medium cursor-not-allowed">
-                                <MapPin size={18} /><span>Areas</span>
+                            <h1 className="text-xl font-bold tracking-tight">HawkSpot</h1>
+                        </div>
+                        <nav className="p-4 space-y-2 flex-1">
+                            <div className="flex items-center gap-3 px-4 py-3 bg-blue-600/10 text-blue-400 rounded-xl font-medium">
+                                <Icon name="images" size={18} /><span>Submissions</span>
+                            </div>
+                            <div className="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-800/50 rounded-xl font-medium cursor-not-allowed">
+                                <Icon name="map-pin" size={18} /><span>Areas</span>
+                            </div>
+                            <div className="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-800/50 rounded-xl font-medium cursor-not-allowed">
+                                <Icon name="settings" size={18} /><span>Settings</span>
                             </div>
                         </nav>
-                        <div className="mt-auto p-6 border-t border-slate-800 text-xs text-slate-500">
-                            Bunnys Snacks v1.0.4
+                        <div className="p-6 border-t border-slate-800 text-[10px] text-slate-500 uppercase tracking-widest font-bold">
+                            Bunnys Snacks v1.0.5
                         </div>
                     </aside>
 
-                    {/* Main */}
+                    {/* Main Content */}
                     <main className="flex-1 flex flex-col min-w-0 bg-slate-50">
-                        <header className="h-16 bg-white border-b flex items-center justify-between px-8 shrink-0">
-                            <h2 className="font-semibold text-slate-700">Execution Dashboard</h2>
+                        <header className="h-16 bg-white border-b flex items-center justify-between px-8 shrink-0 z-10">
+                            <h2 className="font-bold text-slate-800 text-lg">Execution Dashboard</h2>
                             <button 
                                 onClick={handleExport}
                                 disabled={selectedIds.size === 0 || isExporting}
-                                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
+                                className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md active:scale-95"
                             >
-                                {isExporting ? <Loader2 className="animate-spin" size={18} /> : <FileDown size={18} />}
+                                {isExporting ? <Icon name="loader-2" size={18} className="animate-spin" /> : <Icon name="file-down" size={18} />}
                                 {isExporting ? 'Generating...' : 'Export PPTX'}
                             </button>
                         </header>
 
+                        {/* Search */}
                         <div className="p-8 pb-4">
-                            <div className="relative">
-                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                            <div className="relative group">
+                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors">
+                                    <Icon name="search" size={20} />
+                                </span>
                                 <input 
-                                    className="w-full pl-10 pr-4 py-3 bg-white border rounded-xl focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
-                                    placeholder="Search by shop or area..."
+                                    className="w-full pl-12 pr-4 py-4 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all shadow-sm text-slate-700 font-medium"
+                                    placeholder="Search by shop name, area, or distributor..."
                                     value={searchTerm}
                                     onChange={e => setSearchTerm(e.target.value)}
                                 />
                             </div>
                         </div>
 
+                        {/* Content Grid */}
                         <div className="flex-1 overflow-y-auto p-8 pt-2 custom-scrollbar">
                             {isLoading ? (
-                                <div className="h-64 flex flex-col items-center justify-center text-slate-400">
-                                    <Loader2 className="animate-spin mb-2" size={32} />
-                                    <span>Syncing with field data...</span>
+                                <div className="h-full flex flex-col items-center justify-center text-slate-400">
+                                    <div className="w-10 h-10 border-4 border-slate-200 border-t-blue-500 rounded-full animate-spin mb-4"></div>
+                                    <span className="font-medium">Syncing field data...</span>
+                                </div>
+                            ) : filteredSubmissions.length === 0 ? (
+                                <div className="h-full flex flex-col items-center justify-center text-slate-400">
+                                    <Icon name="alert-circle" size={48} className="mb-4 opacity-20" />
+                                    <span className="font-medium">No results found for "{searchTerm}"</span>
                                 </div>
                             ) : (
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
                                     {filteredSubmissions.map(shop => (
                                         <div 
                                             key={shop.id}
                                             onClick={() => toggleSelect(shop.id)}
-                                            className={`bg-white border rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-lg ${selectedIds.has(shop.id) ? 'border-blue-500 ring-4 ring-blue-500/10' : 'border-slate-200'}`}
+                                            className={`bg-white border rounded-3xl overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-xl group animate-in ${selectedIds.has(shop.id) ? 'border-blue-500 ring-4 ring-blue-500/10' : 'border-slate-200'}`}
                                         >
-                                            <div className="aspect-video bg-slate-100 relative">
-                                                <img src={shop.images[0]} className="w-full h-full object-cover" />
-                                                <div className="absolute top-2 left-2 bg-black/60 text-white text-[10px] px-2 py-1 rounded font-bold">
-                                                    {shop.images.length} PHOTOS
+                                            <div className="aspect-[4/3] bg-slate-100 relative overflow-hidden">
+                                                <img src={shop.images[0]} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt={shop.shopName} />
+                                                <div className="absolute top-4 left-4 bg-black/60 backdrop-blur-sm text-white text-[10px] px-2 py-1 rounded-full font-black tracking-wider uppercase">
+                                                    {shop.images.length} Evidence{shop.images.length !== 1 ? 's' : ''}
                                                 </div>
-                                                <div className="absolute top-2 right-2">
-                                                    {selectedIds.has(shop.id) ? <CheckCircle2 className="text-blue-500 bg-white rounded-full" /> : <Circle className="text-white/50" />}
+                                                <div className="absolute top-4 right-4">
+                                                    {selectedIds.has(shop.id) ? (
+                                                        <Icon name="check-circle-2" size={28} className="text-blue-500 fill-white" />
+                                                    ) : (
+                                                        <Icon name="circle" size={28} className="text-white/70" />
+                                                    )}
                                                 </div>
                                             </div>
-                                            <div className="p-4">
-                                                <h3 className="font-bold text-slate-800 truncate">{shop.shopName}</h3>
-                                                <div className="flex items-center gap-1 text-xs text-slate-500 mt-1">
-                                                    <MapPin size={12} /><span>{shop.area}</span>
+                                            <div className="p-5">
+                                                <h3 className="font-bold text-slate-800 truncate text-lg group-hover:text-blue-600 transition-colors">{shop.shopName}</h3>
+                                                <div className="flex items-center gap-2 text-sm text-slate-500 mt-2">
+                                                    <Icon name="map-pin" size={14} className="text-slate-400" />
+                                                    <span>{shop.area}</span>
                                                 </div>
-                                                <div className="mt-3 pt-3 border-t flex justify-between text-[10px] text-slate-400">
-                                                    <span>Dist: {shop.distributor}</span>
+                                                <div className="mt-5 pt-4 border-t border-slate-50 flex justify-between items-center text-[11px] text-slate-400 font-bold uppercase">
+                                                    <span className="truncate max-w-[120px]">{shop.distributor}</span>
                                                     <span>{shop.date}</span>
                                                 </div>
                                             </div>
@@ -252,12 +325,21 @@
                             )}
                         </div>
                         
+                        {/* Floating Bar */}
                         {selectedIds.size > 0 && (
-                            <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-6 animate-bounce-subtle">
-                                <span className="text-sm">{selectedIds.size} Shops Selected</span>
-                                <div className="w-px h-4 bg-slate-700" />
-                                <button onClick={handleExport} className="text-sm font-bold text-blue-400 hover:text-blue-300">Generate Report</button>
-                                <button onClick={() => setSelectedIds(new Set())} className="text-xs text-slate-500">Clear</button>
+                            <div className="fixed bottom-10 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-8 py-4 rounded-3xl shadow-2xl flex items-center gap-8 z-50 border border-slate-700 transition-all duration-300">
+                                <div className="flex items-center gap-2">
+                                    <span className="bg-blue-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-black">{selectedIds.size}</span>
+                                    <span className="text-sm font-bold tracking-tight">Shops Selected</span>
+                                </div>
+                                <div className="w-px h-6 bg-slate-700" />
+                                <button onClick={handleExport} className="text-sm font-black text-blue-400 hover:text-blue-300 transition-colors uppercase tracking-widest flex items-center gap-2">
+                                    <Icon name="file-down" size={16} />
+                                    Generate Report
+                                </button>
+                                <button onClick={() => setSelectedIds(new Set())} className="text-xs font-bold text-slate-500 hover:text-white transition-colors">
+                                    Clear
+                                </button>
                             </div>
                         )}
                     </main>
