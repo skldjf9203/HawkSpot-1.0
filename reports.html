@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HawkSpot | Reports</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/gh/gitbrent/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
+    <link rel="stylesheet" href="css/app.css" />
+</head>
+<body>
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-logo">
+            <div class="logo-mark">
+                <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                    <path d="M14 2L26 8V20L14 26L2 20V8L14 2Z" fill="#3B82F6" fill-opacity="0.15" stroke="#3B82F6" stroke-width="1.5"/>
+                    <path d="M14 8L20 11V17L14 20L8 17V11L14 8Z" fill="#3B82F6"/>
+                </svg>
+            </div>
+            <div class="logo-text">
+                <span class="logo-brand">HAWKSPOT</span>
+                <span class="logo-sub">Field Intelligence</span>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-section-label">WORKSPACE</div>
+            <a href="index.html" class="nav-item" data-page="dashboard">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+                Submissions
+            </a>
+            <a href="reports.html" class="nav-item active" data-page="reports">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                Reports
+            </a>
+            <a href="analytics.html" class="nav-item" data-page="analytics">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                Analytics
+            </a>
+            <div class="nav-section-label" style="margin-top: 24px;">ADMIN</div>
+            <a href="settings.html" class="nav-item" data-page="settings">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+                Settings
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="connection-badge" id="conn-badge">
+                <span class="conn-dot"></span>
+                <span class="conn-label">Supabase Ready</span>
+            </div>
+            <p class="sidebar-version">v1.0.0 · Bunnys Snacks</p>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="topbar">
+            <div class="topbar-left">
+                <h1 class="page-title">Reports</h1>
+                <div class="breadcrumb">
+                    <span>Bunnys Snacks Division</span>
+                    <span class="sep">/</span>
+                    <span class="active">Export History</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="placeholder-page">
+            <div class="placeholder-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            </div>
+            <h2>Reports History</h2>
+            <p>Export logs and generated PPTX records will appear here once Supabase is connected.</p>
+            <a href="index.html" class="btn-link">Go to Submissions →</a>
+        </div>
+    </main>
+
+    <script>
+        window.HAWKSPOT_CONFIG = {
+            SUPABASE_URL: 'YOUR_SUPABASE_URL',
+            SUPABASE_KEY: 'YOUR_SUPABASE_ANON_KEY',
+        };
+    </script>
+    <script src="js/supabase-client.js"></script>
+</body>
+</html>
